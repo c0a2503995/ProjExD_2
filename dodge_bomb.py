@@ -13,7 +13,7 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
 	variable: koukaton_rect/bomb_rect
 	return : tuple (vertical, horizontal)
 	True if inside, False if outside
-	"""
+    """
     hor, ver = True, True
     if obj_rct.left < 0 or WIDTH < obj_rct.right:
         hor = False
@@ -58,12 +58,14 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
 
 def get_kk_imgs() -> dict[tuple[int,int], pg.Surface]:
     """
+    koukaton change direction when arrow key is pressed
+    return: dictionary (direction of koukatonc)
     """
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_img_r = pg.transform.flip(kk_img, True, False)
     kk_dict = {
         ( 0,  0): pg.transform.rotozoom(kk_img,     0, 0.9),  # default
-        (+5,  0): pg.transform.rotozoom(kk_img_r,   0, 0.9),  # right
+        (+5,  0): pg.transform  .rotozoom(kk_img_r,   0, 0.9),  # right
         (+5, -5): pg.transform.rotozoom(kk_img_r,  45, 0.9),  # upright
         ( 0, -5): pg.transform.rotozoom(kk_img_r,  90, 0.9),  # up
         (-5, -5): pg.transform.rotozoom(kk_img,   -45, 0.9),  # upleft
@@ -79,8 +81,6 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")    
     # kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
-    # kk_rct = kk_img.get_rect()
-    # kk_rct.center = 300, 200
     kk_imgs = get_kk_imgs()
     kk_img = kk_imgs[(0, 0)]
     kk_rct = kk_img.get_rect()
@@ -95,10 +95,9 @@ def main():
     bb_rct.centerx = (random.randint(0, WIDTH)) 
     bb_rct.centery = (random.randint(0, HEIGHT))
     vx, vy = +5, +5
-
     clock = pg.time.Clock()
     tmr = 0
-    
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -127,18 +126,17 @@ def main():
         avx = vx*bb_accs[min(tmr//500, 9)]
         avy = vy*bb_accs[min(tmr//500, 9)]
         bb_img = bb_imgs[min(tmr//500, 9)]
-
         bb_rct.width = bb_img.get_rect().width
         bb_rct.height = bb_img.get_rect().height
-
         bb_rct.move_ip(avx, avy)
-        hor, ver = check_bound(bb_rct)
+        hor, ver = check_bound(bb_rct) #check if bomb go outside the screen
         if not hor:
             vx *= -1
         if not ver:
             vy *= -1
-        screen.blit(bb_img, bb_rct) 
+        screen.blit(bb_img, bb_rct)
 
+        pg.display.set_caption(f"逃げろ！こうかとん  Time: {tmr // 50}")
         pg.display.update()
         tmr += 1
         clock.tick(50)
