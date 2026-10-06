@@ -1,7 +1,7 @@
 import os
 import sys
 import pygame as pg
-import random
+import random, time
 
 WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -21,6 +21,23 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
         ver = False
     return hor, ver
 
+def gameover(screen: pg.Surface) -> None:
+    """
+    display gameover screen when touch the bomb
+    """
+    screen = pg.display.set_mode((WIDTH, HEIGHT))
+    gg_bg = pg.Surface(WIDTH, HEIGHT)
+    gg_bg.set_alpha (200)
+
+    gg_font = pg.font.Font(None,80)
+    txt = gg_font.render("GAME OVER", True, (255, 255, 255))
+    screen.blit(txt, [300, 200])
+    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    screen.blit(kk_img, [150.200])
+    screen.blit(gg_bg,[0,0])
+    pg.display.update
+    time.sleep(5)
+    return
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -42,6 +59,7 @@ def main():
     vx, vy = +5, +5
     clock = pg.time.Clock()
     tmr = 0
+    
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -49,6 +67,7 @@ def main():
         screen.blit(bg_img, [0, 0]) 
 
         if kk_rct.colliderect(bb_rct):
+            gameover()
             print ("game over")
             return
 
