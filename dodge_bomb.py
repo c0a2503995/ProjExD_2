@@ -5,8 +5,8 @@ import random, time
 
 WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
 DELTA = {pg.K_UP:(0, -5), pg.K_DOWN:(0, +5), pg.K_LEFT:(-5,0), pg.K_RIGHT:(+5, 0)}
+
 
 def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     """
@@ -21,11 +21,11 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
         ver = False
     return hor, ver
 
+
 def gameover(screen: pg.Surface) -> None:
     """
     display gameover screen when touch the bomb
     """
-
     gg_bg = pg.Surface([WIDTH, HEIGHT])
     gg_bg.set_alpha (150)
     screen.blit(gg_bg,[0,0])
@@ -55,11 +55,34 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     bb_accs = [a for a in range(1, 11)]
     return bb_imgs, bb_accs
 
+
+def get_kk_imgs() -> dict[tuple[int,int], pg.Surface]:
+    """
+    """
+    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    kk_img_r = pg.transform.flip(kk_img, True, False)
+    kk_dict = {
+        ( 0,  0): pg.transform.rotozoom(kk_img,     0, 0.9),  # default
+        (+5,  0): pg.transform.rotozoom(kk_img_r,   0, 0.9),  # right
+        (+5, -5): pg.transform.rotozoom(kk_img_r,  45, 0.9),  # upright
+        ( 0, -5): pg.transform.rotozoom(kk_img_r,  90, 0.9),  # up
+        (-5, -5): pg.transform.rotozoom(kk_img,   -45, 0.9),  # upleft
+        (-5,  0): pg.transform.rotozoom(kk_img,     0, 0.9),  # left
+        (-5, +5): pg.transform.rotozoom(kk_img,    45, 0.9),  # downleft
+        ( 0, +5): pg.transform.rotozoom(kk_img_r, -90, 0.9),  # down
+        (+5, +5): pg.transform.rotozoom(kk_img_r, -45, 0.9),  # downright
+    }
+    return kk_dict
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")    
-    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    # kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    # kk_rct = kk_img.get_rect()
+    # kk_rct.center = 300, 200
+    kk_imgs = get_kk_imgs()
+    kk_img = kk_imgs[(0, 0)]
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
 
@@ -97,6 +120,7 @@ def main():
 
         if check_bound(kk_rct) != (True, True):  #return kk move if hits the walls
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
+        kk_img = kk_imgs[tuple(sum_mv)]
         screen.blit(kk_img, kk_rct)
 
         # bomb grow bigger and faster with time 
