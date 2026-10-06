@@ -26,16 +26,17 @@ def gameover(screen: pg.Surface) -> None:
     display gameover screen when touch the bomb
     """
     screen = pg.display.set_mode((WIDTH, HEIGHT))
-    gg_bg = pg.Surface(WIDTH, HEIGHT)
-    gg_bg.set_alpha (200)
+    gg_bg = pg.Surface([WIDTH, HEIGHT])
+    gg_bg.set_alpha (150)
+    screen.blit(gg_bg,[0,0])
 
     gg_font = pg.font.Font(None,80)
     txt = gg_font.render("GAME OVER", True, (255, 255, 255))
-    screen.blit(txt, [300, 200])
-    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
-    screen.blit(kk_img, [150.200])
-    screen.blit(gg_bg,[0,0])
-    pg.display.update
+    screen.blit(txt, [400, 300])
+    kk_img = pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 0.9)
+    screen.blit(kk_img, [350, 300])
+    screen.blit(kk_img, [750, 300])
+    pg.display.update()
     time.sleep(5)
     return
 
@@ -67,7 +68,7 @@ def main():
         screen.blit(bg_img, [0, 0]) 
 
         if kk_rct.colliderect(bb_rct):
-            gameover()
+            gameover(screen)
             print ("game over")
             return
 
