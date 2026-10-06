@@ -47,6 +47,11 @@ def main():
             if event.type == pg.QUIT: 
                 return
         screen.blit(bg_img, [0, 0]) 
+
+        if kk_rct.colliderect(bb_rct):
+            print ("game over")
+            return
+
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         for key, move in DELTA.items():
@@ -57,7 +62,7 @@ def main():
         if check_bound(kk_rct) != (True, True):  #return kk move
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
-        
+
         bb_rct.move_ip(vx, vy)
         hor, ver = check_bound(bb_rct)
         if not hor:
