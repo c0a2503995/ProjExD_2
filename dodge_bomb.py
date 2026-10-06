@@ -25,7 +25,7 @@ def gameover(screen: pg.Surface) -> None:
     """
     display gameover screen when touch the bomb
     """
-    screen = pg.display.set_mode((WIDTH, HEIGHT))
+
     gg_bg = pg.Surface([WIDTH, HEIGHT])
     gg_bg.set_alpha (150)
     screen.blit(gg_bg,[0,0])
@@ -43,15 +43,14 @@ def gameover(screen: pg.Surface) -> None:
 
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
-    variable: 
-    return: bb_imgs, bb_accs
+    return: tuple (bb_imgs, bb_accs)
     bomb getting bigger and faster with time
     """
     bb_imgs = []
     for r in range(1,11):
         bb_img = pg.Surface ((20*r, 20*r))
         pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
-        # bb_img.set_colorkey((0, 0, 0))
+        bb_img.set_colorkey((0, 0, 0))
         bb_imgs.append ((bb_img))
     bb_accs = [a for a in range(1, 11)]
     return bb_imgs, bb_accs
@@ -64,16 +63,16 @@ def main():
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
 
-    # insert bomb
-    bb_img = pg.Surface((20, 20))
-    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
-    bb_img.set_colorkey((0, 0, 0))
+    #define bomb speed and size
+    bb_imgs , bb_accs = init_bb_imgs()
+    bb_img = bb_imgs[0]
 
-    # bomb in random position
+    # bomb spawn in random position
     bb_rct = bb_img.get_rect()
     bb_rct.centerx = (random.randint(0, WIDTH)) 
     bb_rct.centery = (random.randint(0, HEIGHT))
     vx, vy = +5, +5
+
     clock = pg.time.Clock()
     tmr = 0
     
@@ -83,7 +82,7 @@ def main():
                 return
         screen.blit(bg_img, [0, 0]) 
 
-        if kk_rct.colliderect(bb_rct):
+        if kk_rct.colliderect(bb_rct):  #end game when touches the bomb
             gameover(screen)
             print ("game over")
             return
@@ -95,17 +94,27 @@ def main():
                 sum_mv[0] += move[0]
                 sum_mv[1] += move[1]
         kk_rct.move_ip(sum_mv)
-        if check_bound(kk_rct) != (True, True):  #return kk move
+
+        if check_bound(kk_rct) != (True, True):  #return kk move if hits the walls
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
 
-        bb_rct.move_ip(vx, vy)
+        # bomb grow bigger and faster with time 
+        avx = vx*bb_accs[min(tmr//500, 9)]
+        avy = vy*bb_accs[min(tmr//500, 9)]
+        bb_img = bb_imgs[min(tmr//500, 9)]
+
+        bb_rct.width = bb_img.get_rect().width
+        bb_rct.height = bb_img.get_rect().height
+
+        bb_rct.move_ip(avx, avy)
         hor, ver = check_bound(bb_rct)
         if not hor:
             vx *= -1
         if not ver:
             vy *= -1
         screen.blit(bb_img, bb_rct) 
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
