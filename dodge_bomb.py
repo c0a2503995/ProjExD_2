@@ -8,6 +8,20 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 DELTA = {pg.K_UP:(0, -5), pg.K_DOWN:(0, +5), pg.K_LEFT:(-5,0), pg.K_RIGHT:(+5, 0)}
 
+def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
+    """
+	variable: koukaton_rect/bomb_rect
+	return : tuple (vertical, horizontal)
+	True if inside, False if outside
+	"""
+    hor, ver = True, True
+    if obj_rct.left < 0 or WIDTH < obj_rct.right:
+        hor = False
+    if obj_rct.top < 0 or HEIGHT < obj_rct.bottom:
+        ver = False
+    return hor, ver
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -23,23 +37,16 @@ def main():
 
     # bomb in random position
     bb_rct = bb_img.get_rect()
-    bb_rct.center = ((random.randint(0, WIDTH)), (random.randint(0, HEIGHT)))
+    bb_rct.centerx = (random.randint(0, WIDTH)) 
+    bb_rct.centery = (random.randint(0, HEIGHT))
+    vx, vy = +5, +5
     clock = pg.time.Clock()
     tmr = 0
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
-
         screen.blit(bg_img, [0, 0]) 
-        screen.blit(bb_img, bb_rct) # generate bomb
-
-        # bomb moving
-        vx, vy = 0, 0
-        vx += 5
-        vy += 5
-        bb_rct.move_ip(vx, vy)
-
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         for key, move in DELTA.items():
@@ -47,7 +54,17 @@ def main():
                 sum_mv[0] += move[0]
                 sum_mv[1] += move[1]
         kk_rct.move_ip(sum_mv)
+        if check_bound(kk_rct) != (True, True):  #return kk move
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
+        
+        bb_rct.move_ip(vx, vy)
+        hor, ver = check_bound(bb_rct)
+        if not hor:
+            vx *= -1
+        if not ver:
+            vy *= -1
+        screen.blit(bb_img, bb_rct) 
         pg.display.update()
         tmr += 1
         clock.tick(50)
